@@ -56,10 +56,8 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    printf("\nProgram starts with %d cores & %d threads, T value = %d.\n", P, N, T);
     Scheduler scheduler;
     SchedulerInit(&scheduler, P, N, T);
+    SchedulerStart(&scheduler);
     return 0;
-
-    // ------------------------------
 }
