@@ -5,12 +5,10 @@
 #define MAX_NAME_LEN  20
 
 
-typedef struct tcb{						/* tcb := Task Control Block */
-	int pid;                   			/* ID of the proces */
-	int prio;                  			/* process priority */
-	// void (*function)(void);          /* pointer to the process function */
-	char name[MAX_NAME_LEN];            /* Name of the process */
-	char* status;
+typedef struct tcb{						
+	int pid;                   			/* ID of the task */
+	int prio;                  			/* task priority */
+	char name[MAX_NAME_LEN];            /* Name of the task */
 } Task;
 
 
@@ -34,7 +32,7 @@ unsigned long taskGetId(Task* task){
 // };
 
 // void taskSuspend(Task* task){
-// 	task->status = "Suspended";
+// 	
 // };
 
 void taskWait(int t_sleep){
@@ -68,13 +66,13 @@ typedef struct ScheduleInfo_t{
 void* taskWake(void* args){
 
 	ScheduleInfo* sc_info = (ScheduleInfo*)args;
-
 	// if taskShouldSuspend(cur_task*){
 		// taskSuspend(cur_task);
 	// }
 	taskGetMem(sc_info->mutex);
-	printf("Cur Task is %s Last Task is %s\n", taskGetName(sc_info->task), sc_info->memory);
+	printf("Cur Task is %s Last Task is %s\n\n", taskGetName(sc_info->task), sc_info->memory);
 	taskSetMem(sc_info->memory, taskGetName(sc_info->task));
 	taskReleaseMem(sc_info->mutex);
 	taskWait(sc_info->tick_time);
+	return NULL;
 };
