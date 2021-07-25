@@ -72,7 +72,7 @@ typedef struct ScheduleInfo_t{
                 int tick_time;
     } ScheduleInfo;
 
-// main tasks execution body
+// tasks' main execution body
 void* taskWake(void* args){
 
 	ScheduleInfo* sc_info = (ScheduleInfo*)args;

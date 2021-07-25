@@ -109,9 +109,6 @@ void SchedulerStart(Scheduler* scdl){
     }
     printf("\n");
     __Sort_Tasks_by_priority(&scdl->tasks, scdl->n_tasks);
-    for (int i = 0; i < scdl->n_tasks; i++){
-        printf("TID : %d PID %d\n", taskGetId(&scdl->tasks[i]), taskPrio(&scdl->tasks[i]));
-    }
     printf("\n");
     ScheduleInfo arg[scdl->n_cores];
     
