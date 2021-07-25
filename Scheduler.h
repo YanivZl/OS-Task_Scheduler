@@ -9,7 +9,6 @@
 #include "Task.h"
 #include "utils.h"
 
-
 #define MEMOEY_SIZE 32
 
 typedef struct Scheduler{
@@ -22,6 +21,7 @@ typedef struct Scheduler{
 
 } Scheduler;
 
+// global var for SIGUSR1, set to true when get the signal.
 bool signalFlag = false;
 
 void SchedulerInit(Scheduler* scdl, int n_cores, int n_tasks, int tick_time){
@@ -43,40 +43,45 @@ void SchedulerInit(Scheduler* scdl, int n_cores, int n_tasks, int tick_time){
 
 };
 
+// Helper function
 void __Sort_Tasks_by_priority(Task** p_tasks, int n_tasks){
     
     Task* temp_array = (Task*)malloc(n_tasks * sizeof(Task));
     Task* tasks = *p_tasks;
     for (int i = 0; i < n_tasks; i++){
-        temp_array[n_tasks - tasks[i].prio - 1] = tasks[i];
+        temp_array[n_tasks - taskPrio(&tasks[i])- 1] = tasks[i];
     }
     *p_tasks = temp_array;
 }
 
-
+// Strcut for sig_handler
 typedef struct signal_struct_t{
     Task** tasks; 
     int n_tasks;
 } Sig_Args;
 
+// Global var for sig_handler
 Sig_Args args = {};
 
 
+// Helper function
 void __Sort_Tasks_by_ID(){
     Task* temp_array = (Task*)malloc(args.n_tasks * sizeof(Task));
     Task* tasks = *args.tasks;
     for (int i = 0; i < args.n_tasks; i++){
-        temp_array[tasks[i].pid] = tasks[i];
+        temp_array[taskGetId(&tasks[i])] = tasks[i];
     }
     *args.tasks = temp_array;
     signalFlag = true;
 }
 
-void set_sig_args(Task** tasks, int n_tasks){
+// Set function for args global var
+void __set_sig_args(Task** tasks, int n_tasks){
     args.tasks = tasks;
     args.n_tasks = n_tasks;
 }
 
+// Signal Handler fot SIGUSR1
 void sig_handler(int signum){
 
     //Return type of the handler function should be void
@@ -86,12 +91,13 @@ void sig_handler(int signum){
     }
 }
 
-
+// Main scheduler function
 void SchedulerStart(Scheduler* scdl){
 
     //Register a signal for SIGUSR1
     signal(SIGUSR1, sig_handler);
-    set_sig_args(&scdl->tasks, scdl->n_tasks);
+    __set_sig_args(&scdl->tasks, scdl->n_tasks);
+
     pthread_t threads[scdl->n_cores];
     pthread_attr_t at;
     cpu_set_t cpuset;
@@ -99,12 +105,12 @@ void SchedulerStart(Scheduler* scdl){
     printf("First tasks architeture:\n\n");
     printf("\tTID  |  Priority  \n");
     for(int i = 0; i < scdl->n_tasks; i++){
-        printf("\t %d   |     %d   \n", scdl->tasks[i].pid, scdl->tasks[i].prio);
+        printf("\t %d   |     %d   \n", taskGetId(&scdl->tasks[i]), taskPrio(&scdl->tasks[i]));
     }
     printf("\n");
     __Sort_Tasks_by_priority(&scdl->tasks, scdl->n_tasks);
     for (int i = 0; i < scdl->n_tasks; i++){
-        printf("TID : %d PID %d\n", scdl->tasks[i].pid, scdl->tasks[i].prio);
+        printf("TID : %d PID %d\n", taskGetId(&scdl->tasks[i]), taskPrio(&scdl->tasks[i]));
     }
     printf("\n");
     ScheduleInfo arg[scdl->n_cores];
